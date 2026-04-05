@@ -18,7 +18,7 @@ export default function Dashboard() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const url = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1'
+        const url = process.env.NEXT_PUBLIC_API_URL
         const [qRes, cRes, kRes] = await Promise.all([
           fetch(`${url}/quotes/recent`),
           fetch(`${url}/conversations`),
