@@ -110,53 +110,91 @@ export default function Dashboard() {
               <StatCard icon={<Quote className="text-purple-400" />} label="Conversión" value={kpis.conversion} change="+Est." />
             </div>
 
-            {/* Table */}
+            {/* Table Grouped by Client */}
             <div className="bg-slate-900/50 rounded-2xl border border-slate-800 overflow-hidden backdrop-blur-sm">
               <div className="p-6 border-b border-slate-800 flex justify-between items-center">
-                <h3 className="font-semibold text-white">Últimas Cotizaciones WhatsApp</h3>
-                <button className="text-blue-400 text-sm hover:underline font-medium" onClick={() => setActiveTab('conversations')}>Ver todas</button>
+                <h3 className="font-semibold text-white">Llamadas y Clientes Recientes (Agrupados)</h3>
+                <button className="text-blue-400 text-sm hover:underline font-medium" onClick={() => setActiveTab('conversations')}>Ver todos los leads</button>
               </div>
               <table className="w-full text-left">
                 <thead>
                   <tr className="text-slate-400 text-xs uppercase tracking-wider border-b border-slate-800/50">
                     <th className="px-6 py-4 font-semibold">Cliente</th>
-                    <th className="px-6 py-4 font-semibold">Producto</th>
-                    <th className="px-6 py-4 font-semibold">Fecha</th>
-                    <th className="px-6 py-4 font-semibold">Total</th>
-                    <th className="px-6 py-4 font-semibold">Estado</th>
-                    <th className="px-6 py-4 font-semibold"></th>
+                    <th className="px-6 py-4 font-semibold">Último Servicio</th>
+                    <th className="px-6 py-4 font-semibold">Nº Cot.</th>
+                    <th className="px-6 py-4 font-semibold">Última Fecha</th>
+                    <th className="px-6 py-4 font-semibold">Total Acumulado</th>
+                    <th className="px-6 py-4 font-semibold">Acciones</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-800/50">
-                  {quotes.map((quote) => (
-                    <tr key={quote.id} className="hover:bg-slate-800/30 transition-colors group">
+                  {Object.values(quotes.reduce((acc: any, q) => {
+                    if (!acc[q.phone]) {
+                      acc[q.phone] = { 
+                        ...q, 
+                        count: 1, 
+                        total_amount: parseFloat(q.total?.replace('$', '').replace(',', '') || '0'),
+                        all_items: [q]
+                      }
+                    } else {
+                      acc[q.phone].count += 1
+                      acc[q.phone].total_amount += parseFloat(q.total?.replace('$', '').replace(',', '') || '0')
+                      acc[q.phone].all_items.push(q)
+                      // Keep latest date/status
+                      if (new Date(q.date) > new Date(acc[q.phone].date)) {
+                        acc[q.phone].date = q.date
+                        acc[q.phone].product = q.product
+                        acc[q.phone].status = q.status
+                        acc[q.phone].total = q.total
+                      }
+                    }
+                    return acc
+                  }, {})).map((group: any) => (
+                    <tr key={group.phone} className="hover:bg-slate-800/30 transition-colors group">
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
                           <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs border border-slate-700">
-                            {quote.phone?.slice(-2) || '--'}
+                            {group.phone?.slice(-2) || '--'}
                           </div>
-                          <span className="text-sm font-medium text-white">{quote.phone}</span>
+                          <span className="text-sm font-medium text-white">{group.phone}</span>
                         </div>
                       </td>
-                      <td className="px-6 py-4 text-sm text-slate-300">{quote.product}</td>
-                      <td className="px-6 py-4 text-sm text-slate-400">{new Date(quote.date).toLocaleDateString()}</td>
-                      <td className="px-6 py-4 text-sm font-semibold text-emerald-400">{quote.total}</td>
+                      <td className="px-6 py-4 text-sm text-slate-300">
+                        <div className="flex flex-col">
+                          <span>{group.product}</span>
+                          <span className="text-[10px] text-slate-500 italic">{group.status}</span>
+                        </div>
+                      </td>
                       <td className="px-6 py-4">
-                        <span className={`px-2 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
-                          quote.status === 'Pendiente' ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
-                          quote.status === 'Enviado' ? 'bg-blue-500/10 text-blue-500 border-blue-500/20' :
-                          'bg-emerald-500/10 text-emerald-500 border-emerald-500/20'
-                        }`}>
-                          {quote.status}
+                        <span className="bg-blue-500/10 text-blue-400 text-xs px-2 py-0.5 rounded-md border border-blue-500/20">
+                          {group.count}
                         </span>
                       </td>
+                      <td className="px-6 py-4 text-sm text-slate-400">{new Date(group.date).toLocaleDateString()}</td>
+                      <td className="px-6 py-4 text-sm font-semibold text-emerald-400">${group.total_amount.toLocaleString()}</td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-slate-500 hover:text-white transition-colors" onClick={() => setSelectedChat(quote)}>
-                          <Search size={16} />
-                        </button>
+                        <div className="flex items-center justify-end space-x-3">
+                          <button className="text-slate-500 hover:text-white transition-colors" title="Ver Historial" onClick={() => setSelectedChat({
+                            ...group,
+                            chat_history: group.all_items.flatMap((i: any) => i.chat_history || [])
+                          })}>
+                            <Clock size={16} />
+                          </button>
+                          <button className="text-blue-400 hover:text-white transition-colors p-1.5 bg-blue-500/10 rounded-lg" title="Analizar Lead" onClick={() => {
+                            setActiveTab('conversations')
+                            // Logic could be added here to auto-select or filter the conversation
+                          }}>
+                            <Search size={16} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
+                  {quotes.length === 0 && (
+                     <tr>
+                        <td colSpan={6} className="px-6 py-10 text-center text-slate-500 text-sm">No hay cotizaciones registradas aún.</td>
+                     </tr>
+                  )}
                 </tbody>
               </table>
             </div>
