@@ -288,12 +288,12 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
   if (!account) {
     return (
       <section className="p-8">
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-8">
-          <p className="mb-3 text-sm uppercase tracking-[0.2em] text-slate-500">Catalogo</p>
-          <h2 className="mb-3 text-3xl font-bold text-white">Selecciona una cuenta para administrar su oferta</h2>
-          <p className="max-w-2xl leading-relaxed text-slate-400">
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-8 shadow-sm dark:shadow-none">
+          <p className="mb-3 text-sm uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Catalogo</p>
+          <h2 className="mb-3 text-3xl font-bold text-slate-900 dark:text-white">Selecciona una cuenta para administrar su oferta</h2>
+          <p className="max-w-2xl leading-relaxed text-slate-500 dark:text-slate-400">
             El catalogo vive por cuenta. Cuando elijas una cuenta activa desde el selector superior, cargaremos sus
-            servicios y productos asociados a <span className="font-medium text-slate-200">catalog_items.account_id</span>.
+            servicios y productos asociados a <span className="font-medium text-slate-700 dark:text-slate-200">catalog_items.account_id</span>.
           </p>
         </div>
       </section>
@@ -301,23 +301,23 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
   }
 
   return (
-    <section className="space-y-8 p-8">
+    <section className="space-y-8 p-8 bg-slate-50 dark:bg-transparent transition-colors duration-300">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="mb-3 text-sm uppercase tracking-[0.2em] text-slate-500">Catalogo</p>
-          <h2 className="mb-2 text-3xl font-bold text-white">Gestiona la oferta comercial de {account.name}</h2>
-          <p className="max-w-3xl leading-relaxed text-slate-400">
+          <p className="mb-3 text-sm uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Catalogo</p>
+          <h2 className="mb-2 text-3xl font-bold text-slate-900 dark:text-white">Gestiona la oferta comercial de {account.name}</h2>
+          <p className="max-w-3xl leading-relaxed text-slate-500 dark:text-slate-400">
             Crea y mantiene productos o servicios visibles para esta cuenta. El bot tomara estos items como base para
             vender, orientar y cotizar desde WhatsApp.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-300">
-            <span className="text-slate-500">Cuenta:</span> {account.name}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 shadow-sm dark:shadow-none">
+            <span className="text-slate-400 dark:text-slate-500">Cuenta:</span> {account.name}
           </div>
-          <div className="rounded-xl border border-slate-800 bg-slate-900 px-3 py-2 text-sm text-slate-300">
-            <span className="text-slate-500">Rol:</span> {account.role || 'admin'}
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm text-slate-700 dark:text-slate-300 shadow-sm dark:shadow-none">
+            <span className="text-slate-400 dark:text-slate-500">Rol:</span> {account.role || 'admin'}
           </div>
           <button
             type="button"
@@ -331,54 +331,54 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard icon={<ClipboardList className="text-blue-400" />} label="Items totales" value={String(stats.total)} />
-        <MetricCard icon={<CheckCircle2 className="text-emerald-400" />} label="Activos" value={String(stats.active)} />
-        <MetricCard icon={<Layers3 className="text-violet-400" />} label="Categorias" value={String(stats.categories)} />
-        <MetricCard icon={<BadgeDollarSign className="text-amber-400" />} label="Ticket base medio" value={formatCurrency(stats.average)} />
+        <MetricCard icon={<ClipboardList className="text-blue-500 dark:text-blue-400" />} label="Items totales" value={String(stats.total)} />
+        <MetricCard icon={<CheckCircle2 className="text-emerald-500 dark:text-emerald-400" />} label="Activos" value={String(stats.active)} />
+        <MetricCard icon={<Layers3 className="text-violet-500 dark:text-violet-400" />} label="Categorias" value={String(stats.categories)} />
+        <MetricCard icon={<BadgeDollarSign className="text-amber-500 dark:text-amber-400" />} label="Ticket base medio" value={formatCurrency(stats.average)} />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1.15fr)_minmax(380px,0.85fr)]">
-        <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/40">
-          <div className="border-b border-slate-800 px-6 py-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.2fr)_minmax(340px,0.8fr)]">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 shadow-sm dark:shadow-none">
+          <div className="border-b border-slate-200 dark:border-slate-800 px-6 py-5">
             <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
               <div>
-                <div className="flex items-center gap-2 font-semibold text-white">
-                  <Package2 size={18} className="text-blue-400" />
+                <div className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
+                  <Package2 size={18} className="text-blue-500 dark:text-blue-400" />
                   Catalogo operativo
                 </div>
-                <p className="mt-1 text-sm text-slate-400">
+                <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
                   Prioriza claridad comercial: nombre, categoria, precio base y alcance visible para el bot.
                 </p>
               </div>
 
               <div className="flex flex-1 flex-col gap-3 xl:max-w-2xl xl:flex-row">
-                <div className="flex items-center rounded-xl border border-slate-800 bg-[#020617] px-3 py-2 text-sm text-slate-300 xl:flex-1">
-                  <Search size={16} className="mr-2 text-slate-500" />
+                <div className="flex items-center rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#020617] px-3 py-2 text-sm text-slate-700 dark:text-slate-300 xl:flex-1 shadow-sm dark:shadow-none">
+                  <Search size={16} className="mr-2 text-slate-400 dark:text-slate-500" />
                   <input
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     placeholder="Buscar por nombre, descripcion o categoria"
-                    className="w-full bg-transparent outline-none placeholder:text-slate-500"
+                    className="w-full bg-transparent outline-none placeholder:text-slate-400 dark:placeholder:text-slate-600 text-slate-900 dark:text-white"
                   />
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="inline-flex items-center gap-2 rounded-xl border border-slate-800 bg-[#020617] px-3 py-2 text-sm text-slate-300">
-                    <Filter size={16} className="text-slate-500" />
+                  <div className="inline-flex items-center gap-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#020617] px-3 py-2 text-sm text-slate-700 dark:text-slate-300 shadow-sm dark:shadow-none">
+                    <Filter size={16} className="text-slate-400 dark:text-slate-500" />
                     <select
                       value={categoryFilter}
                       onChange={(e) => setCategoryFilter(e.target.value)}
                       className="bg-transparent outline-none"
                     >
                       {categories.map((category) => (
-                        <option key={category} value={category} className="bg-slate-950">
+                        <option key={category} value={category} className="bg-white dark:bg-slate-950 text-slate-900 dark:text-white">
                           {category === 'all' ? 'Todas las categorias' : category}
                         </option>
                       ))}
                     </select>
                   </div>
 
-                  <div className="inline-flex rounded-xl border border-slate-800 bg-[#020617] p-1 text-sm">
+                  <div className="inline-flex rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-[#020617] p-1 text-sm shadow-sm dark:shadow-none">
                     {[
                       { key: 'all', label: 'Todos' },
                       { key: 'active', label: 'Activos' },
@@ -389,7 +389,7 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
                         type="button"
                         onClick={() => setStatusFilter(option.key as 'all' | 'active' | 'inactive')}
                         className={`rounded-lg px-3 py-1.5 transition-colors ${
-                          statusFilter === option.key ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-slate-200'
+                          statusFilter === option.key ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                         }`}
                       >
                         {option.label}
@@ -408,48 +408,48 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
             </div>
           ) : filteredItems.length === 0 ? (
             <div className="px-6 py-16 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-950 text-slate-500">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-950 text-slate-400 dark:text-slate-500">
                 <Package2 size={22} />
               </div>
-              <h3 className="mb-2 text-lg font-semibold text-white">Aun no hay items que mostrar</h3>
-              <p className="mx-auto max-w-xl text-sm leading-6 text-slate-400">
+              <h3 className="mb-2 text-lg font-semibold text-slate-900 dark:text-white">Aun no hay items que mostrar</h3>
+              <p className="mx-auto max-w-xl text-sm leading-6 text-slate-500 dark:text-slate-400">
                 Crea el primer servicio o producto de esta cuenta para que el agente tenga una base real de oferta.
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-800/60">
+            <div className="divide-y divide-slate-100 dark:divide-slate-800/60">
               {filteredItems.map((item) => (
                 <button
                   key={item.id}
                   type="button"
                   onClick={() => handleSelect(item)}
-                  className={`w-full px-6 py-5 text-left transition-colors hover:bg-slate-800/30 ${
-                    selectedId === item.id ? 'bg-blue-600/10' : ''
+                  className={`w-full px-6 py-5 text-left transition-colors hover:bg-slate-50 dark:hover:bg-slate-800/30 ${
+                    selectedId === item.id ? 'bg-blue-600/5 dark:bg-blue-600/10' : ''
                   }`}
                 >
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0">
                       <div className="mb-2 flex flex-wrap items-center gap-2">
-                        <span className="rounded-full border border-slate-700 bg-slate-950 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-400">
+                        <span className="rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-2.5 py-1 text-[11px] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">
                           {item.category}
                         </span>
                         <span
-                          className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${
+                          className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
                             item.is_active
-                              ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-300'
-                              : 'border border-slate-700 bg-slate-900 text-slate-400'
+                              ? 'border border-emerald-500/20 bg-emerald-500/10 text-emerald-600 dark:text-emerald-300'
+                              : 'border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400'
                           }`}
                         >
                           {item.is_active ? 'Activo' : 'Inactivo'}
                         </span>
                       </div>
-                      <h3 className="truncate text-lg font-semibold text-white">{item.name}</h3>
-                      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">{item.description || 'Sin descripcion comercial.'}</p>
+                      <h3 className="truncate text-lg font-bold text-slate-900 dark:text-white">{item.name}</h3>
+                      <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500 dark:text-slate-400">{item.description || 'Sin descripcion comercial.'}</p>
                     </div>
 
                     <div className="shrink-0 text-right">
-                      <p className="text-sm text-slate-500">Precio base</p>
-                      <p className="text-lg font-semibold text-emerald-300">{formatCurrency(item.base_price)}</p>
+                      <p className="text-sm text-slate-400 dark:text-slate-500 font-medium">Precio base</p>
+                      <p className="text-lg font-bold text-emerald-600 dark:text-emerald-300">{formatCurrency(item.base_price)}</p>
                     </div>
                   </div>
                 </button>
@@ -458,13 +458,13 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
           )}
         </div>
 
-        <div className="rounded-2xl border border-slate-800 bg-slate-900/40">
-          <div className="border-b border-slate-800 px-6 py-5">
-            <div className="flex items-center gap-2 font-semibold text-white">
-              <Sparkles size={18} className="text-violet-400" />
+        <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 shadow-sm dark:shadow-none">
+          <div className="border-b border-slate-200 dark:border-slate-800 px-6 py-5">
+            <div className="flex items-center gap-2 font-semibold text-slate-900 dark:text-white">
+              <Sparkles size={18} className="text-violet-500 dark:text-violet-400" />
               {selectedId ? 'Editor del item' : 'Nuevo item de catalogo'}
             </div>
-            <p className="mt-1 text-sm text-slate-400">
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
               Diseña una ficha comercial clara para ventas y para el grounding del bot.
             </p>
           </div>
@@ -476,7 +476,7 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
                   value={editor.category}
                   onChange={(e) => setEditor((current) => ({ ...current, category: e.target.value }))}
                   placeholder="Ej: web"
-                  className="w-full rounded-xl border border-slate-800 bg-[#020617] px-4 py-3 text-sm text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#020617] px-4 py-3 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm dark:shadow-none"
                 />
               </Field>
 
@@ -486,7 +486,7 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
                   onChange={(e) => setEditor((current) => ({ ...current, base_price: e.target.value }))}
                   inputMode="decimal"
                   placeholder="150000"
-                  className="w-full rounded-xl border border-slate-800 bg-[#020617] px-4 py-3 text-sm text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20"
+                  className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#020617] px-4 py-3 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm dark:shadow-none"
                 />
               </Field>
             </div>
@@ -497,7 +497,7 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
                   key={category}
                   type="button"
                   onClick={() => setEditor((current) => ({ ...current, category }))}
-                  className="rounded-full border border-slate-700 bg-slate-950 px-3 py-1.5 text-xs text-slate-300 transition-colors hover:border-slate-500 hover:text-white"
+                  className="rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-1.5 text-xs text-slate-600 dark:text-slate-300 transition-all hover:border-blue-500 hover:text-blue-500 shadow-sm dark:shadow-none"
                 >
                   {category}
                 </button>
@@ -509,7 +509,7 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
                 value={editor.name}
                 onChange={(e) => setEditor((current) => ({ ...current, name: e.target.value }))}
                 placeholder="Landing Page Tactica"
-                className="w-full rounded-xl border border-slate-800 bg-[#020617] px-4 py-3 text-sm text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20"
+                className="w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#020617] px-4 py-3 text-sm text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm dark:shadow-none"
               />
             </Field>
 
@@ -519,7 +519,7 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
                 onChange={(e) => setEditor((current) => ({ ...current, description: e.target.value }))}
                 rows={5}
                 placeholder="Explica alcance, beneficios y enfoque comercial del item."
-                className="w-full resize-y rounded-xl border border-slate-800 bg-[#020617] px-4 py-3 text-sm leading-6 text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20"
+                className="w-full resize-y rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#020617] px-4 py-3 text-sm leading-6 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm dark:shadow-none"
               />
             </Field>
 
@@ -529,15 +529,15 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
                 onChange={(e) => setEditor((current) => ({ ...current, specificationsText: e.target.value }))}
                 rows={11}
                 spellCheck={false}
-                className="w-full resize-y rounded-xl border border-slate-800 bg-[#020617] px-4 py-3 font-mono text-xs leading-6 text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20"
+                className="w-full resize-y rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#020617] px-4 py-3 font-mono text-xs leading-6 text-slate-900 dark:text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-slate-600 shadow-sm dark:shadow-none"
               />
             </Field>
 
-            <div className="rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-4">
+            <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/70 px-4 py-4 shadow-sm dark:shadow-none">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <p className="font-medium text-white">Disponibilidad comercial</p>
-                  <p className="mt-1 text-sm leading-6 text-slate-400">
+                  <p className="font-bold text-slate-900 dark:text-white">Disponibilidad comercial</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">
                     Los items inactivos quedan preservados, pero el bot no deberia ofrecerlos como parte de la cuenta.
                   </p>
                 </div>
@@ -545,11 +545,11 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
                   type="button"
                   onClick={() => setEditor((current) => ({ ...current, is_active: !current.is_active }))}
                   className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
-                    editor.is_active ? 'bg-emerald-500/80' : 'bg-slate-700'
+                    editor.is_active ? 'bg-emerald-500/80 shadow-[0_0_10px_rgba(16,185,129,0.3)]' : 'bg-slate-300 dark:bg-slate-700'
                   }`}
                 >
                   <span
-                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                    className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform shadow-md ${
                       editor.is_active ? 'translate-x-7' : 'translate-x-1'
                     }`}
                   />
@@ -575,14 +575,14 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
               </div>
             )}
 
-            <div className="flex flex-col gap-3 border-t border-slate-800 pt-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex flex-wrap items-center gap-2 text-sm text-slate-400">
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-3 py-1.5">
-                  <Tag size={14} className="text-slate-500" />
+            <div className="flex flex-col gap-3 border-t border-slate-200 dark:border-slate-800 pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 shadow-sm dark:shadow-none">
+                  <Tag size={14} className="text-slate-400 dark:text-slate-500" />
                   {editor.category || 'Sin categoria'}
                 </span>
-                <span className="inline-flex items-center gap-2 rounded-full border border-slate-800 bg-slate-950 px-3 py-1.5">
-                  <BadgeDollarSign size={14} className="text-slate-500" />
+                <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 px-3 py-1.5 shadow-sm dark:shadow-none">
+                  <BadgeDollarSign size={14} className="text-slate-400 dark:text-slate-500" />
                   {editor.base_price ? formatCurrency(Number(editor.base_price)) : 'Sin precio'}
                 </span>
               </div>
@@ -592,7 +592,7 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
                   type="button"
                   onClick={() => setEditor(toEditorState(selectedItem))}
                   disabled={!hasChanges}
-                  className="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 transition-colors hover:bg-slate-800 disabled:opacity-40"
+                  className="rounded-xl border border-slate-200 dark:border-slate-700 px-4 py-2 text-sm text-slate-600 dark:text-slate-300 transition-all hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 shadow-sm dark:shadow-none"
                 >
                   Revertir
                 </button>
@@ -616,12 +616,12 @@ export function CatalogItemsPanel({ account }: CatalogItemsPanelProps) {
 
 function MetricCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-sm">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 backdrop-blur-sm shadow-sm dark:shadow-none">
       <div className="mb-4 flex items-center justify-between">
-        <div className="rounded-lg bg-slate-800 p-2">{icon}</div>
+        <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-2">{icon}</div>
       </div>
-      <p className="mb-1 text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
-      <h4 className="text-2xl font-bold text-white">{value}</h4>
+      <p className="mb-1 text-xs font-medium uppercase tracking-wider text-slate-500 dark:text-slate-400">{label}</p>
+      <h4 className="text-2xl font-bold text-slate-900 dark:text-white">{value}</h4>
     </div>
   )
 }
@@ -629,7 +629,7 @@ function MetricCard({ icon, label, value }: { icon: React.ReactNode; label: stri
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-sm font-medium text-slate-200">{label}</span>
+      <span className="mb-2 block text-sm font-bold text-slate-700 dark:text-slate-200">{label}</span>
       {children}
     </label>
   )

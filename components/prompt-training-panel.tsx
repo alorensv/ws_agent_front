@@ -208,11 +208,11 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
   if (!account) {
     return (
       <section className="p-8">
-        <div className="border border-slate-800 bg-slate-900/40 rounded-2xl p-8">
+        <div className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 rounded-2xl p-8 shadow-sm dark:shadow-none">
           <div className="max-w-2xl">
-            <p className="text-sm uppercase tracking-[0.2em] text-slate-500 mb-3">Prompt Training</p>
-            <h2 className="text-3xl font-bold text-white mb-3">Selecciona una cuenta para entrenar su agente</h2>
-            <p className="text-slate-400 leading-relaxed">
+            <p className="text-sm uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-3">Prompt Training</p>
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">Selecciona una cuenta para entrenar su agente</h2>
+            <p className="text-slate-500 dark:text-slate-400 leading-relaxed">
               Este modulo vive por cuenta. Cuando elijas una cuenta activa desde el selector superior, cargaremos su
               system prompt y podras ajustarlo sin afectar a las demas.
             </p>
@@ -223,43 +223,43 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
   }
 
   return (
-    <section className="p-8 space-y-8">
+    <section className="p-8 space-y-8 bg-slate-50 dark:bg-transparent transition-colors duration-300">
       <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <p className="text-sm uppercase tracking-[0.2em] text-slate-500 mb-3">Prompt Training</p>
-          <h2 className="text-3xl font-bold text-white mb-2">Entrena el agente de {account.name}</h2>
-          <p className="text-slate-400 max-w-3xl leading-relaxed">
+          <p className="text-sm uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500 mb-3">Prompt Training</p>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-2">Entrena el agente de {account.name}</h2>
+          <p className="text-slate-500 dark:text-slate-400 max-w-3xl leading-relaxed">
             Ajusta identidad, flujo, guardrails y gatillos del bot de WhatsApp de esta cuenta. Los cambios se guardan
-            sobre <span className="text-slate-200 font-medium">accounts.system_prompt</span>.
+            sobre <span className="text-slate-900 dark:text-slate-200 font-medium">accounts.system_prompt</span>.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-3">
-          <div className="px-3 py-2 rounded-xl border border-slate-800 bg-slate-900 text-sm text-slate-300">
-            <span className="text-slate-500">Cuenta:</span> {account.name}
+          <div className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-300 shadow-sm dark:shadow-none">
+            <span className="text-slate-400 dark:text-slate-500">Cuenta:</span> {account.name}
           </div>
-          <div className="px-3 py-2 rounded-xl border border-slate-800 bg-slate-900 text-sm text-slate-300">
-            <span className="text-slate-500">Rol:</span> {account.role || 'admin'}
+          <div className="px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-sm text-slate-700 dark:text-slate-300 shadow-sm dark:shadow-none">
+            <span className="text-slate-400 dark:text-slate-500">Rol:</span> {account.role || 'admin'}
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(0,1.7fr)_380px]">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(0,1.7fr)_350px]">
         <div className="space-y-6">
-          <div className="border border-slate-800 bg-slate-900/40 rounded-2xl overflow-hidden">
-            <div className="flex flex-col gap-4 border-b border-slate-800 px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
+          <div className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 rounded-2xl overflow-hidden shadow-sm dark:shadow-none">
+            <div className="flex flex-col gap-4 border-b border-slate-200 dark:border-slate-800 px-6 py-5 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <div className="flex items-center gap-2 text-white font-semibold">
-                  <Bot size={18} className="text-blue-400" />
+                <div className="flex items-center gap-2 text-slate-900 dark:text-white font-semibold">
+                  <Bot size={18} className="text-blue-500 dark:text-blue-400" />
                   Editor maestro del system prompt
                 </div>
-                <p className="text-sm text-slate-400 mt-1">
+                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
                   Mantiene aislada la personalidad del bot, el flujo conversacional y las reglas del gatillo de
                   cotizacion.
                 </p>
               </div>
 
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => {
@@ -268,7 +268,7 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
                     setError(null)
                   }}
                   disabled={!hasChanges || saving}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent transition-colors shadow-sm dark:shadow-none"
                 >
                   <RefreshCcw size={16} />
                   Revertir
@@ -277,7 +277,7 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
                   type="button"
                   onClick={handleCopy}
                   disabled={!prompt}
-                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent transition-colors"
+                  className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 disabled:hover:bg-transparent transition-colors shadow-sm dark:shadow-none"
                 >
                   <Copy size={16} />
                   Copiar
@@ -305,7 +305,7 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   spellCheck={false}
-                  className="min-h-[560px] w-full resize-y rounded-2xl border border-slate-800 bg-[#020617] px-5 py-4 text-sm leading-7 text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20"
+                  className="min-h-[560px] w-full resize-y rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-[#020617] px-5 py-4 text-sm leading-relaxed text-slate-800 dark:text-slate-100 outline-none focus:border-blue-500/60 focus:ring-2 focus:ring-blue-500/20 shadow-inner dark:shadow-none"
                   placeholder="Define aqui el system prompt especifico de esta cuenta..."
                 />
 
@@ -314,7 +314,7 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
                     <button
                       type="button"
                       onClick={() => setPrompt(buildPromptTemplate(account.name))}
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm dark:shadow-none"
                     >
                       <Sparkles size={16} />
                       Cargar estructura sugerida
@@ -322,7 +322,7 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
                     <button
                       type="button"
                       onClick={() => setPrompt((current) => `${current.trim()}\n\n## CATALOGO DISPONIBLE\n{context}`.trim())}
-                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors"
+                      className="inline-flex items-center gap-2 px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors shadow-sm dark:shadow-none whitespace-nowrap"
                     >
                       <Target size={16} />
                       Insertar {`{context}`}
@@ -330,7 +330,7 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
                   </div>
 
                   <div className="flex items-center gap-3 text-sm">
-                    <span className="px-3 py-1.5 rounded-full bg-slate-950 border border-slate-800 text-slate-300">
+                    <span className="px-3 py-1.5 rounded-full bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 shadow-sm dark:shadow-none">
                       {charCount} caracteres
                     </span>
                     <span className={`px-3 py-1.5 rounded-full border ${
@@ -362,15 +362,15 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
         </div>
 
         <div className="space-y-6">
-          <div className="border border-slate-800 bg-slate-900/40 rounded-2xl p-6">
-            <div className="flex items-center gap-2 text-white font-semibold mb-4">
-              <CheckCircle2 size={18} className="text-emerald-400" />
+          <div className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 rounded-2xl p-6 shadow-sm dark:shadow-none">
+            <div className="flex items-center gap-2 text-slate-900 dark:text-white font-semibold mb-4">
+              <CheckCircle2 size={18} className="text-emerald-500 dark:text-emerald-400" />
               Salud del prompt
             </div>
             <div className="mb-5 flex items-end justify-between">
               <div>
-                <p className="text-4xl font-bold text-white">{analysis.score}/{analysis.total}</p>
-                <p className="text-sm text-slate-400">Chequeos clave aprobados</p>
+                <p className="text-4xl font-bold text-slate-900 dark:text-white">{analysis.score}/{analysis.total}</p>
+                <p className="text-sm text-slate-500 dark:text-slate-400">Chequeos clave aprobados</p>
               </div>
               <div className={`px-3 py-1.5 rounded-full text-sm border ${
                 analysis.score >= 4
@@ -385,10 +385,10 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
               {analysis.checks.map((item) => (
                 <div
                   key={item.label}
-                  className="flex items-center justify-between rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3"
+                  className="flex items-center justify-between rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/70 px-4 py-3"
                 >
-                  <span className="text-sm text-slate-200">{item.label}</span>
-                  <span className={`text-sm ${item.ok ? 'text-emerald-300' : 'text-amber-300'}`}>
+                  <span className="text-sm text-slate-700 dark:text-slate-200">{item.label}</span>
+                  <span className={`text-sm font-bold ${item.ok ? 'text-emerald-600 dark:text-emerald-300' : 'text-amber-600 dark:text-amber-300'}`}>
                     {item.ok ? 'OK' : 'Pendiente'}
                   </span>
                 </div>
@@ -396,39 +396,39 @@ export function PromptTrainingPanel({ account }: PromptTrainingPanelProps) {
             </div>
           </div>
 
-          <div className="border border-slate-800 bg-slate-900/40 rounded-2xl p-6">
-            <div className="flex items-center gap-2 text-white font-semibold mb-4">
-              <Sparkles size={18} className="text-violet-400" />
+          <div className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 rounded-2xl p-6 shadow-sm dark:shadow-none">
+            <div className="flex items-center gap-2 text-slate-900 dark:text-white font-semibold mb-4">
+              <Sparkles size={18} className="text-violet-500 dark:text-violet-400" />
               Estructura recomendada
             </div>
             <div className="space-y-3">
               {TEMPLATE_SECTIONS.map((section) => (
-                <div key={section.label} className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3">
-                  <div className="flex items-center gap-2 text-sm font-medium text-white">
-                    <ChevronRight size={14} className="text-slate-500" />
+                <div key={section.label} className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/70 px-4 py-3">
+                  <div className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
+                    <ChevronRight size={14} className="text-slate-400 dark:text-slate-500" />
                     {section.label}
                   </div>
-                  <p className="mt-1 text-sm leading-6 text-slate-400">{section.hint}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400">{section.hint}</p>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="border border-slate-800 bg-slate-900/40 rounded-2xl p-6">
-            <div className="flex items-center gap-2 text-white font-semibold mb-4">
-              <Target size={18} className="text-blue-400" />
+          <div className="border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 rounded-2xl p-6 shadow-sm dark:shadow-none">
+            <div className="flex items-center gap-2 text-slate-900 dark:text-white font-semibold mb-4">
+              <Target size={18} className="text-blue-500 dark:text-blue-400" />
               Variables criticas
             </div>
-            <div className="space-y-3 text-sm leading-6 text-slate-300">
-              <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3">
-                <p className="font-medium text-white mb-1">{`{context}`}</p>
-                <p className="text-slate-400">
+            <div className="space-y-3 text-sm leading-6 text-slate-600 dark:text-slate-300">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/70 px-4 py-3">
+                <p className="font-bold text-slate-900 dark:text-white mb-1">{`{context}`}</p>
+                <p className="text-slate-500 dark:text-slate-400">
                   Inyecta el catalogo real de servicios permitidos para la cuenta.
                 </p>
               </div>
-              <div className="rounded-xl border border-slate-800 bg-slate-950/70 px-4 py-3">
-                <p className="font-medium text-white mb-1">TRIGGER_GENERATE_QUOTE</p>
-                <p className="text-slate-400">
+              <div className="rounded-xl border border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/70 px-4 py-3">
+                <p className="font-bold text-slate-900 dark:text-white mb-1">TRIGGER_GENERATE_QUOTE</p>
+                <p className="text-slate-500 dark:text-slate-400">
                   Debe aparecer solo al cierre correcto para disparar la generacion del PDF.
                 </p>
               </div>

@@ -12,6 +12,14 @@ import {
   Search,
   Send,
   UserRound,
+  CheckCircle2,
+  AlertCircle,
+  FileCheck2,
+  MoreVertical,
+  ChevronRight,
+  ShieldCheck,
+  Calendar,
+  DollarSign,
 } from 'lucide-react'
 
 type Account = {
@@ -50,9 +58,17 @@ type QuoteItem = {
 
 type QuotesPanelProps = {
   account: Account | null
+  initialQuoteId?: string | null
 }
 
-const STATUS_OPTIONS = ['all', 'sent', 'accepted', 'pending_validation', 'pdf_generated', 'pdf_failed_delivery']
+const STATUS_OPTIONS = [
+  { value: 'draft', label: 'Borrador', color: 'amber' },
+  { value: 'pending', label: 'Pendiente', color: 'blue' },
+  { value: 'pdf_generated', label: 'PDF Generado', color: 'violet' },
+  { value: 'sent', label: 'Enviada', color: 'sky' },
+  { value: 'accepted', label: 'Aceptada', color: 'emerald' },
+  { value: 'pdf_failed_delivery', label: 'Error Envío', color: 'rose' },
+]
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat('es-CL', {
@@ -70,70 +86,98 @@ function formatDate(value?: string) {
   }).format(new Date(value))
 }
 
-function formatStatus(status?: string) {
+function statusConfig(status?: string) {
   const normalized = (status || 'pending').toLowerCase()
-  const labels: Record<string, string> = {
-    sent: 'Enviada',
-    accepted: 'Aceptada',
-    pending_validation: 'Pendiente validacion',
-    pdf_generated: 'PDF listo',
-    pdf_failed_delivery: 'Entrega fallida',
-    draft: 'Borrador',
-    pending: 'Pendiente',
-  }
-
-  return labels[normalized] || normalized.replace(/_/g, ' ')
+  return STATUS_OPTIONS.find(opt => opt.value === normalized) || { value: normalized, label: normalized.replace(/_/g, ' '), color: 'slate' }
 }
 
 function statusClasses(status?: string) {
-  const normalized = (status || 'pending').toLowerCase()
-  if (normalized === 'accepted') return 'border-emerald-500/20 bg-emerald-500/10 text-emerald-300'
-  if (normalized === 'sent') return 'border-sky-500/20 bg-sky-500/10 text-sky-300'
-  if (normalized === 'pdf_generated') return 'border-violet-500/20 bg-violet-500/10 text-violet-300'
-  if (normalized === 'pdf_failed_delivery') return 'border-rose-500/20 bg-rose-500/10 text-rose-300'
-  return 'border-amber-500/20 bg-amber-500/10 text-amber-300'
+  const config = statusConfig(status)
+  const colors: Record<string, string> = {
+    emerald: 'border-emerald-500/20 bg-emerald-500/10 text-emerald-400',
+    sky: 'border-sky-500/20 bg-sky-500/10 text-sky-400',
+    violet: 'border-violet-500/20 bg-violet-500/10 text-violet-400',
+    rose: 'border-rose-500/20 bg-rose-500/10 text-rose-400',
+    amber: 'border-amber-500/20 bg-amber-500/10 text-amber-400',
+    blue: 'border-blue-500/20 bg-blue-500/10 text-blue-400',
+    slate: 'border-slate-500/20 bg-slate-500/10 text-slate-400',
+  }
+  return colors[config.color] || colors.slate
 }
 
-export function QuotesPanel({ account }: QuotesPanelProps) {
+export function QuotesPanel({ account, initialQuoteId }: QuotesPanelProps) {
   const [quotes, setQuotes] = useState<QuoteItem[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
-  const [selectedId, setSelectedId] = useState<string | null>(null)
+  const [selectedId, setSelectedId] = useState<string | null>(initialQuoteId || null)
+  const [updatingStatus, setUpdatingStatus] = useState<string | null>(null)
 
-  useEffect(() => {
-    async function loadQuotes() {
-      if (!account?.id) {
-        setQuotes([])
-        setSelectedId(null)
-        return
-      }
-
-      setLoading(true)
-      setError(null)
-
-      try {
-        const url = process.env.NEXT_PUBLIC_API_URL
-        const res = await fetch(`${url}/quotes?account_id=${account.id}&limit=100`)
-
-        if (!res.ok) {
-          throw new Error('No fue posible cargar las cotizaciones de esta cuenta.')
-        }
-
-        const data: QuoteItem[] = await res.json()
-        const nextQuotes = Array.isArray(data) ? data : []
-        setQuotes(nextQuotes)
-        setSelectedId((current) => current && nextQuotes.some((quote) => quote.id === current) ? current : nextQuotes[0]?.id || null)
-      } catch (err: any) {
-        setError(err.message || 'No fue posible cargar las cotizaciones.')
-      } finally {
-        setLoading(false)
-      }
+  const loadQuotes = async () => {
+    if (!account?.id) {
+      setQuotes([])
+      setSelectedId(null)
+      return
     }
 
+    setLoading(true)
+    setError(null)
+
+    try {
+      const url = process.env.NEXT_PUBLIC_API_URL
+      const res = await fetch(`${url}/quotes?account_id=${account.id}&limit=100`)
+
+      if (!res.ok) {
+        throw new Error('No fue posible cargar las cotizaciones de esta cuenta.')
+      }
+
+      const data: QuoteItem[] = await res.json()
+      const nextQuotes = Array.isArray(data) ? data : []
+      setQuotes(nextQuotes)
+      
+      // Select logic
+      if (initialQuoteId && nextQuotes.some(q => q.id === initialQuoteId)) {
+        setSelectedId(initialQuoteId)
+      } else if (!selectedId || !nextQuotes.some(q => q.id === selectedId)) {
+        setSelectedId(nextQuotes[0]?.id || null)
+      }
+    } catch (err: any) {
+      setError(err.message || 'No fue posible cargar las cotizaciones.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    if (initialQuoteId) {
+      setSelectedId(initialQuoteId)
+    }
+  }, [initialQuoteId])
+
+  useEffect(() => {
     loadQuotes()
   }, [account?.id])
+
+  const handleStatusChange = async (quoteId: string, newStatus: string) => {
+    setUpdatingStatus(quoteId)
+    try {
+      const url = process.env.NEXT_PUBLIC_API_URL
+      const res = await fetch(`${url}/quotes/${quoteId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus }),
+      })
+
+      if (res.ok) {
+        setQuotes(prev => prev.map(q => q.id === quoteId ? { ...q, status: newStatus } : q))
+      }
+    } catch (err) {
+      console.error('Error updating status', err)
+    } finally {
+      setUpdatingStatus(null)
+    }
+  }
 
   const filteredQuotes = useMemo(() => {
     return quotes.filter((quote) => {
@@ -144,18 +188,9 @@ export function QuotesPanel({ account }: QuotesPanelProps) {
     })
   }, [quotes, search, statusFilter])
 
-  useEffect(() => {
-    if (!selectedId && filteredQuotes[0]) {
-      setSelectedId(filteredQuotes[0].id)
-      return
-    }
-
-    if (selectedId && !filteredQuotes.some((quote) => quote.id === selectedId)) {
-      setSelectedId(filteredQuotes[0]?.id || null)
-    }
-  }, [filteredQuotes, selectedId])
-
-  const selectedQuote = filteredQuotes.find((quote) => quote.id === selectedId) || filteredQuotes[0] || null
+  const selectedQuote = useMemo(() => 
+    filteredQuotes.find((quote) => quote.id === selectedId) || filteredQuotes[0] || null
+  , [filteredQuotes, selectedId])
 
   const stats = useMemo(() => {
     const sent = quotes.filter((quote) => quote.status === 'sent').length
@@ -180,12 +215,13 @@ export function QuotesPanel({ account }: QuotesPanelProps) {
   if (!account) {
     return (
       <section className="p-8">
-        <div className="rounded-[28px] border border-slate-800 bg-slate-900/40 p-8">
-          <p className="mb-3 text-sm uppercase tracking-[0.25em] text-slate-500">Cotizaciones</p>
-          <h2 className="mb-3 text-3xl font-bold text-white">Selecciona una cuenta para revisar su pipeline comercial</h2>
-          <p className="max-w-2xl leading-relaxed text-slate-400">
-            El modulo trabaja por cuenta activa. Cuando elijas una en el selector superior, cargaremos sus cotizaciones,
-            clientes, historial y el PDF enviado a cada lead.
+        <div className="rounded-[32px] border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-white to-slate-50 dark:from-slate-900/60 dark:to-slate-900/20 p-12 backdrop-blur-xl text-center shadow-sm dark:shadow-none">
+          <div className="mx-auto w-20 h-20 rounded-3xl bg-blue-600/10 flex items-center justify-center text-blue-500 dark:text-blue-400 mb-6 border border-blue-500/20">
+            <ShieldCheck size={40} />
+          </div>
+          <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Pipeline de Ventas</h2>
+          <p className="max-w-xl mx-auto leading-relaxed text-slate-500 dark:text-slate-400 text-lg">
+            Selecciona una cuenta en el panel superior para visualizar y gestionar las cotizaciones generadas por la IA.
           </p>
         </div>
       </section>
@@ -193,326 +229,387 @@ export function QuotesPanel({ account }: QuotesPanelProps) {
   }
 
   return (
-    <section className="space-y-8 p-8">
-      <div className="flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+    <section className="space-y-6 p-4 lg:p-8 animate-in fade-in duration-700">
+      {/* Header Section */}
+      <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="mb-3 text-sm uppercase tracking-[0.25em] text-slate-500">Cotizaciones</p>
-          <h2 className="mb-2 text-3xl font-bold text-white">Cierra oportunidades con contexto completo</h2>
-          <p className="max-w-3xl leading-relaxed text-slate-400">
-            Visualiza el PDF enviado, los datos del cliente y toda la conversacion asociada para tomar contacto con
-            rapidez y cerrar la venta desde una sola vista.
+          <div className="flex items-center gap-2 mb-2">
+            <span className="px-2 py-1 rounded-md bg-blue-600/10 text-blue-500 dark:text-blue-400 text-[10px] font-bold uppercase tracking-wider border border-blue-500/20">
+              Commercial Module
+            </span>
+          </div>
+          <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight">
+            Gestión de <span className="bg-gradient-to-r from-blue-500 to-emerald-500 dark:from-blue-400 dark:to-emerald-400 bg-clip-text text-transparent">Cotizaciones</span>
+          </h2>
+          <p className="mt-2 text-slate-500 dark:text-slate-400 max-w-2xl text-base leading-relaxed">
+            Monitorea leads, revisa propuestas generadas y cierra ventas con el contexto completo de la conversación.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-2 text-sm text-slate-300">
-            <span className="text-slate-500">Cuenta:</span> {account.name}
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-end">
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cuenta Activa</p>
+            <p className="text-slate-900 dark:text-white font-semibold text-lg">{account.name}</p>
           </div>
-          <div className="rounded-2xl border border-slate-800 bg-slate-900 px-4 py-2 text-sm text-slate-300">
-            <span className="text-slate-500">Rol:</span> {account.role || 'admin'}
+          <div className="w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 flex items-center justify-center text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700 shadow-sm">
+            <Send size={24} />
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <MetricCard label="Cotizaciones" value={String(stats.total)} helper="Pipeline de esta cuenta" />
-        <MetricCard label="Enviadas" value={String(stats.sent)} helper="Listas para seguimiento" />
-        <MetricCard label="Con PDF" value={String(stats.withPdf)} helper="Soporte visible al ejecutivo" />
-        <MetricCard label="Monto total" value={formatCurrency(stats.totalValue)} helper={`${stats.accepted} aceptadas`} />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard icon={<FileText className="text-blue-400" />} label="Total Cotizaciones" value={String(stats.total)} helper="Pipeline acumulado" />
+        <MetricCard icon={<Send className="text-sky-400" />} label="Enviadas" value={String(stats.sent)} helper="Esperando respuesta" />
+        <MetricCard icon={<FileCheck2 className="text-violet-400" />} label="Con Documento" value={String(stats.withPdf)} helper="PDFs generados" />
+        <MetricCard icon={<CheckCircle2 className="text-emerald-400" />} label="Volumen Cierre" value={formatCurrency(stats.totalValue)} helper={`${stats.accepted} aceptadas`} />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 2xl:grid-cols-[minmax(360px,0.8fr)_minmax(0,1.2fr)]">
-        <div className="overflow-hidden rounded-[28px] border border-slate-800 bg-slate-900/40">
-          <div className="border-b border-slate-800 px-6 py-5">
-            <div className="flex flex-col gap-4">
-              <div>
-                <div className="flex items-center gap-2 font-semibold text-white">
-                  <Send size={18} className="text-sky-400" />
-                  Bandeja comercial
-                </div>
-                <p className="mt-1 text-sm text-slate-400">
-                  Prioriza a quien contactar con lectura rapida de cliente, servicio y estado.
-                </p>
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[350px_1fr]">
+        {/* Left Column: Quote List */}
+        <div className="flex flex-col h-[calc(100vh-320px)] min-h-[500px] overflow-hidden rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 backdrop-blur-sm shadow-sm dark:shadow-2xl">
+          <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/20">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                  <Send size={18} className="text-blue-500 dark:text-blue-400" />
+                  Bandeja Comercial
+                </h3>
+                <button onClick={loadQuotes} className="text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white transition-colors">
+                  <Clock3 size={16} />
+                </button>
               </div>
 
-              <div className="flex flex-col gap-3">
-                <div className="flex items-center rounded-2xl border border-slate-800 bg-[#020617] px-3 py-2 text-sm text-slate-300">
-                  <Search size={16} className="mr-2 text-slate-500" />
-                  <input
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Buscar por cliente, telefono, servicio o requerimiento"
-                    className="w-full bg-transparent outline-none placeholder:text-slate-500"
-                  />
-                </div>
+              <div className="relative">
+                <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Buscar cliente o servicio..."
+                  className="w-full bg-slate-100 dark:bg-[#020617] border border-slate-200 dark:border-slate-800 rounded-2xl py-3 pl-11 pr-4 text-sm text-slate-900 dark:text-white placeholder:text-slate-500 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                />
+              </div>
 
-                <div className="flex flex-wrap gap-2">
-                  {STATUS_OPTIONS.map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setStatusFilter(option)}
-                      className={`rounded-full border px-3 py-1.5 text-xs transition-colors ${
-                        statusFilter === option
-                          ? 'border-sky-500/40 bg-sky-500/15 text-sky-200'
-                          : 'border-slate-700 bg-slate-950 text-slate-400 hover:border-slate-600 hover:text-white'
-                      }`}
-                    >
-                      {option === 'all' ? 'Todos' : formatStatus(option)}
-                    </button>
-                  ))}
-                </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => setStatusFilter('all')}
+                  className={`px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                    statusFilter === 'all'
+                      ? 'bg-blue-600 text-white border-blue-500 shadow-lg shadow-blue-600/20'
+                      : 'bg-slate-100 dark:bg-slate-950 text-slate-500 border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600'
+                  }`}
+                >
+                  Todos
+                </button>
+                {STATUS_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    onClick={() => setStatusFilter(opt.value)}
+                    className={`px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                      statusFilter === opt.value
+                        ? `bg-${opt.color}-600/20 text-${opt.color}-600 dark:text-${opt.color}-400 border-${opt.color}-500/50 shadow-lg`
+                        : 'bg-slate-100 dark:bg-slate-950 text-slate-500 border-slate-200 dark:border-slate-800 hover:border-slate-400 dark:hover:border-slate-600'
+                    }`}
+                    style={{
+                      backgroundColor: statusFilter === opt.value ? `rgba(var(--${opt.color}-color), 0.2)` : '',
+                      color: statusFilter === opt.value ? `var(--${opt.color}-color)` : '',
+                      borderColor: statusFilter === opt.value ? `var(--${opt.color}-color)` : '',
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
-          {loading ? (
-            <div className="flex items-center justify-center px-6 py-20 text-slate-400">
-              <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-              Cargando cotizaciones...
-            </div>
-          ) : error ? (
-            <div className="px-6 py-16 text-center text-sm text-rose-300">{error}</div>
-          ) : filteredQuotes.length === 0 ? (
-            <div className="px-6 py-16 text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border border-slate-800 bg-slate-950 text-slate-500">
-                <FileText size={22} />
+          <div className="flex-1 overflow-y-auto divide-y divide-slate-100 dark:divide-slate-800/50 custom-scrollbar">
+            {loading ? (
+              <div className="flex flex-col items-center justify-center h-full text-slate-500 gap-4">
+                <Loader2 className="h-10 w-10 animate-spin text-blue-500" />
+                <p className="text-sm font-medium">Sincronizando cotizaciones...</p>
               </div>
-              <h3 className="mb-2 text-lg font-semibold text-white">No hay cotizaciones para este filtro</h3>
-              <p className="mx-auto max-w-lg text-sm leading-6 text-slate-400">
-                Cuando el bot genere propuestas para esta cuenta, las veras aqui con cliente, historial y PDF.
-              </p>
-            </div>
-          ) : (
-            <div className="divide-y divide-slate-800/60">
-              {filteredQuotes.map((quote) => (
+            ) : filteredQuotes.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full p-8 text-center">
+                <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-950 flex items-center justify-center text-slate-400 dark:text-slate-700 mb-4 border border-slate-200 dark:border-slate-800">
+                  <Search size={32} />
+                </div>
+                <p className="text-slate-900 dark:text-white font-semibold">Sin resultados</p>
+                <p className="text-sm text-slate-500 mt-1">No encontramos cotizaciones con estos filtros.</p>
+              </div>
+            ) : (
+              filteredQuotes.map((quote) => (
                 <button
                   key={quote.id}
-                  type="button"
                   onClick={() => setSelectedId(quote.id)}
-                  className={`w-full px-6 py-5 text-left transition-colors hover:bg-slate-800/30 ${
-                    selectedQuote?.id === quote.id ? 'bg-sky-500/10' : ''
+                  className={`w-full p-6 text-left transition-all relative group ${
+                    selectedId === quote.id ? 'bg-blue-600/5 dark:bg-blue-600/10' : 'hover:bg-slate-50 dark:hover:bg-slate-800/30'
                   }`}
                 >
-                  <div className="flex flex-col gap-3">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <div className="mb-2 flex flex-wrap items-center gap-2">
-                          <span className={`rounded-full border px-2.5 py-1 text-[11px] font-medium ${statusClasses(quote.status)}`}>
-                            {formatStatus(quote.status)}
-                          </span>
-                          {quote.has_pdf && (
-                            <span className="rounded-full border border-violet-500/20 bg-violet-500/10 px-2.5 py-1 text-[11px] text-violet-200">
-                              PDF listo
-                            </span>
-                          )}
-                        </div>
-                        <h3 className="truncate text-lg font-semibold text-white">{quote.client_name}</h3>
-                        <p className="mt-1 truncate text-sm text-slate-400">{quote.phone}</p>
-                      </div>
-
-                      <div className="text-right">
-                        <p className="text-sm text-slate-500">{formatDate(quote.created_at)}</p>
-                        <p className="mt-2 text-lg font-semibold text-emerald-300">{quote.total}</p>
-                      </div>
+                  {selectedId === quote.id && (
+                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
+                  )}
+                  
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-2">
+                       <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-tighter border ${statusClasses(quote.status)}`}>
+                        {statusConfig(quote.status).label}
+                      </span>
+                      {quote.has_pdf && (
+                        <FileCheck2 size={14} className="text-violet-400" />
+                      )}
                     </div>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase">{formatDate(quote.created_at).split(',')[0]}</span>
+                  </div>
 
-                    <div className="rounded-2xl border border-slate-800 bg-slate-950/70 px-4 py-3">
-                      <p className="text-xs uppercase tracking-[0.2em] text-slate-500">{quote.category || 'Servicio'}</p>
-                      <p className="mt-1 font-medium text-slate-100">{quote.product}</p>
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-400">
-                        {quote.requirements || quote.product_description || 'Sin requerimientos registrados.'}
-                      </p>
+                  <h4 className="text-slate-900 dark:text-white font-bold text-lg group-hover:text-blue-500 dark:group-hover:text-blue-400 transition-colors truncate">{quote.client_name}</h4>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mb-4">{quote.phone}</p>
+
+                  <div className="bg-slate-50 dark:bg-black/20 rounded-2xl p-4 border border-slate-200 dark:border-slate-800/50">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">{quote.category || 'Servicio'}</p>
+                    <p className="text-slate-700 dark:text-slate-200 text-sm font-medium truncate">{quote.product}</p>
+                    <div className="mt-3 flex justify-between items-center">
+                       <p className="text-emerald-600 dark:text-emerald-400 font-bold text-lg">{quote.total}</p>
+                       <ChevronRight size={16} className={`text-slate-400 dark:text-slate-600 transition-transform ${selectedId === quote.id ? 'translate-x-1 text-blue-500 dark:text-blue-400' : ''}`} />
                     </div>
                   </div>
                 </button>
-              ))}
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <div className="overflow-hidden rounded-[28px] border border-slate-800 bg-slate-900/40">
-            <div className="border-b border-slate-800 px-6 py-5">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div>
-                  <div className="flex items-center gap-2 font-semibold text-white">
-                    <UserRound size={18} className="text-emerald-400" />
-                    Ficha de cierre
-                  </div>
-                  <p className="mt-1 text-sm text-slate-400">
-                    Cliente, propuesta, canales de contacto y lectura del PDF en el mismo lugar.
-                  </p>
-                </div>
-
-                {selectedQuote && (
-                  <div className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-medium ${statusClasses(selectedQuote.status)}`}>
-                    {formatStatus(selectedQuote.status)}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {!selectedQuote ? (
-              <div className="px-6 py-16 text-center text-slate-500">Selecciona una cotizacion para ver su detalle.</div>
-            ) : (
-              <div className="space-y-6 px-6 py-6">
-                <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1.2fr_0.8fr]">
-                  <InfoCard
-                    title="Cliente"
-                    lines={[
-                      selectedQuote.client_name,
-                      selectedQuote.phone,
-                      selectedQuote.client_email || 'Sin email registrado',
-                      selectedQuote.last_interaction ? `Ultima interaccion: ${formatDate(selectedQuote.last_interaction)}` : 'Sin ultima interaccion',
-                    ]}
-                  />
-                  <InfoCard
-                    title="Cotizacion"
-                    lines={[
-                      selectedQuote.product,
-                      selectedQuote.category || 'Categoria sin definir',
-                      selectedQuote.total,
-                      `Creada: ${formatDate(selectedQuote.created_at)}`,
-                    ]}
-                  />
-                </div>
-
-                <div className="flex flex-wrap gap-3">
-                  {selectedQuote.whatsapp_url && (
-                    <a
-                      href={selectedQuote.whatsapp_url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-4 py-2.5 text-sm font-medium text-slate-950 transition-colors hover:bg-emerald-400"
-                    >
-                      <MessageCircleMore size={16} />
-                      Hablar por WhatsApp
-                    </a>
-                  )}
-
-                  {selectedQuote.phone_digits && (
-                    <a
-                      href={`tel:${selectedQuote.phone_digits}`}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 transition-colors hover:border-slate-500 hover:text-white"
-                    >
-                      <Phone size={16} />
-                      Llamar
-                    </a>
-                  )}
-
-                  {selectedQuote.client_email && (
-                    <a
-                      href={`mailto:${selectedQuote.client_email}`}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-slate-700 bg-slate-950 px-4 py-2.5 text-sm text-slate-200 transition-colors hover:border-slate-500 hover:text-white"
-                    >
-                      <Mail size={16} />
-                      Enviar email
-                    </a>
-                  )}
-
-                  {pdfPreviewUrl && (
-                    <a
-                      href={pdfPreviewUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-2 rounded-2xl border border-violet-500/30 bg-violet-500/10 px-4 py-2.5 text-sm text-violet-100 transition-colors hover:bg-violet-500/20"
-                    >
-                      <ExternalLink size={16} />
-                      Abrir PDF
-                    </a>
-                  )}
-                </div>
-
-                <div className="rounded-[24px] border border-slate-800 bg-slate-950/70 p-5">
-                  <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Requerimiento capturado</p>
-                  <p className="mt-3 text-sm leading-7 text-slate-300">
-                    {selectedQuote.requirements || 'No se guardaron requerimientos adicionales para esta cotizacion.'}
-                  </p>
-                </div>
-
-                <div className="rounded-[24px] border border-slate-800 bg-slate-950/70 p-4">
-                  <div className="mb-4 flex items-center gap-2 font-medium text-white">
-                    <FileText size={17} className="text-violet-300" />
-                    PDF enviado al cliente
-                  </div>
-
-                  {pdfPreviewUrl ? (
-                    <iframe
-                      title={`PDF de ${selectedQuote.client_name}`}
-                      src={pdfPreviewUrl}
-                      className="h-[420px] w-full rounded-2xl border border-slate-800 bg-white"
-                    />
-                  ) : (
-                    <div className="flex h-[220px] items-center justify-center rounded-2xl border border-dashed border-slate-700 bg-slate-950 text-sm text-slate-500">
-                      Esta cotizacion aun no tiene PDF disponible.
-                    </div>
-                  )}
-                </div>
-              </div>
+              ))
             )}
           </div>
+        </div>
 
-          <div className="overflow-hidden rounded-[28px] border border-slate-800 bg-slate-900/40">
-            <div className="border-b border-slate-800 px-6 py-5">
-              <div className="flex items-center gap-2 font-semibold text-white">
-                <Clock3 size={18} className="text-amber-300" />
-                Historial asociado
+        {/* Right Column: Quote Detail */}
+        <div className="flex flex-col h-[calc(100vh-320px)] min-h-[500px] overflow-hidden rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 backdrop-blur-sm shadow-sm dark:shadow-2xl">
+          {!selectedQuote ? (
+            <div className="flex flex-col items-center justify-center h-full text-slate-400 dark:text-slate-500 p-12 text-center">
+              <div className="w-24 h-24 rounded-[32px] bg-slate-100 dark:bg-slate-950 flex items-center justify-center text-slate-300 dark:text-slate-800 mb-6 border border-slate-200 dark:border-slate-800 animate-pulse">
+                <FileText size={48} />
               </div>
-              <p className="mt-1 text-sm text-slate-400">Contexto conversacional para personalizar el seguimiento.</p>
+              <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2">Detalles de Propuesta</h3>
+              <p className="max-w-md mx-auto leading-relaxed">
+                Selecciona una cotización del listado lateral para ver toda la información del cliente, el documento enviado y el historial de chat.
+              </p>
             </div>
-
-            <div className="max-h-[420px] space-y-4 overflow-y-auto px-6 py-6">
-              {selectedQuote?.chat_history?.length ? (
-                selectedQuote.chat_history.map((msg, index) => {
-                  const isClient = msg.sender === 'user'
-
-                  return (
-                    <div key={`${msg.timestamp || 'msg'}-${index}`} className={`flex flex-col ${isClient ? 'items-end' : 'items-start'}`}>
-                      <span className="mb-1 text-[10px] uppercase tracking-[0.2em] text-slate-500">
-                        {isClient ? 'Cliente' : 'Agente IA'}
-                      </span>
-                      <div
-                        className={`max-w-[90%] rounded-2xl px-4 py-3 text-sm leading-6 ${
-                          isClient
-                            ? 'bg-sky-500 text-white rounded-tr-sm'
-                            : 'border border-slate-700 bg-slate-950 text-slate-200 rounded-tl-sm'
-                        }`}
-                      >
-                        {msg.message || 'Mensaje sin contenido'}
-                      </div>
-                      <span className="mt-1 text-[10px] text-slate-600">{formatDate(msg.timestamp)}</span>
+          ) : (
+            <div className="flex flex-col h-full animate-in slide-in-from-right-4 duration-500">
+              {/* Detail Header */}
+              <div className="p-8 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/20">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div className="flex items-center gap-5">
+                    <div className="w-16 h-16 rounded-[24px] bg-gradient-to-br from-blue-600 to-blue-400 flex items-center justify-center text-white shadow-xl shadow-blue-600/20">
+                      <UserRound size={32} />
                     </div>
-                  )
-                })
-              ) : (
-                <div className="text-center text-sm text-slate-500">No hay historial asociado para esta cotizacion.</div>
-              )}
+                    <div>
+                      <div className="flex items-center gap-3 mb-1">
+                        <h3 className="text-2xl font-black text-slate-900 dark:text-white leading-none">{selectedQuote.client_name}</h3>
+                        <div className="relative group">
+                          <button 
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-widest border transition-all flex items-center gap-2 ${statusClasses(selectedQuote.status)} ${updatingStatus === selectedQuote.id ? 'opacity-50' : 'hover:scale-105'}`}
+                            disabled={updatingStatus === selectedQuote.id}
+                          >
+                            {updatingStatus === selectedQuote.id ? <Loader2 size={12} className="animate-spin" /> : <ShieldCheck size={12} />}
+                            {statusConfig(selectedQuote.status).label}
+                            <MoreVertical size={12} />
+                          </button>
+                          
+                          <div className="absolute top-full left-0 mt-2 w-48 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-50 overflow-hidden">
+                            <div className="p-3 border-b border-slate-200 dark:border-slate-800 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">Cambiar Estado</div>
+                            {STATUS_OPTIONS.map(opt => (
+                              <button
+                                key={opt.value}
+                                onClick={() => handleStatusChange(selectedQuote.id, opt.value)}
+                                className="w-full text-left px-4 py-3 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-2"
+                              >
+                                <div className={`w-2 h-2 rounded-full bg-${opt.color}-500`} />
+                                {opt.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-slate-500 dark:text-slate-400 font-medium flex items-center gap-2">
+                        <Phone size={14} className="text-slate-300 dark:text-slate-600" /> {selectedQuote.phone}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    {selectedQuote.whatsapp_url && (
+                      <a
+                        href={selectedQuote.whatsapp_url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 rounded-2xl bg-emerald-500 px-6 py-3 text-sm font-black text-slate-950 transition-all hover:bg-emerald-400 hover:scale-105 shadow-lg shadow-emerald-500/20 active:scale-95"
+                      >
+                        <MessageCircleMore size={18} />
+                        HABLAR WHATSAPP
+                      </a>
+                    )}
+                    <button className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-white hover:border-slate-400 dark:hover:border-slate-600 transition-all shadow-sm">
+                      <MoreVertical size={20} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Detail Content */}
+              <div className="flex-1 overflow-y-auto custom-scrollbar">
+                <div className="p-8 space-y-8">
+                  {/* Info Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <InfoBox 
+                      icon={<UserRound size={16} className="text-blue-400" />}
+                      title="Datos del Cliente"
+                      items={[
+                        { label: 'Nombre', value: selectedQuote.client_name },
+                        { label: 'Email', value: selectedQuote.client_email || 'No registrado' },
+                        { label: 'Teléfono', value: selectedQuote.phone },
+                      ]}
+                    />
+                    <InfoBox 
+                      icon={<DollarSign size={16} className="text-emerald-400" />}
+                      title="Detalle Propuesta"
+                      items={[
+                        { label: 'Servicio', value: selectedQuote.product },
+                        { label: 'Categoría', value: selectedQuote.category || 'General' },
+                        { label: 'Monto Total', value: selectedQuote.total, highlight: true },
+                      ]}
+                    />
+                    <InfoBox 
+                      icon={<Calendar size={16} className="text-amber-400" />}
+                      title="Trazabilidad"
+                      items={[
+                        { label: 'Generada', value: formatDate(selectedQuote.created_at) },
+                        { label: 'Última Actividad', value: formatDate(selectedQuote.last_interaction) },
+                        { label: 'ID Sistema', value: selectedQuote.id.slice(0, 8).toUpperCase() },
+                      ]}
+                    />
+                  </div>
+
+                  {/* Requirements & PDF Row */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="space-y-6">
+                      <div className="bg-white dark:bg-[#020617] rounded-[28px] border border-slate-200 dark:border-slate-800 p-6 shadow-sm dark:shadow-none">
+                        <div className="flex items-center gap-3 mb-6">
+                          <div className="p-2 rounded-xl bg-blue-600/10 text-blue-500 dark:text-blue-400">
+                             <AlertCircle size={20} />
+                          </div>
+                          <h4 className="font-bold text-slate-900 dark:text-white text-lg">Requerimientos Capturados</h4>
+                        </div>
+                        <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-base italic bg-slate-50 dark:bg-slate-900/50 p-6 rounded-2xl border border-slate-100 dark:border-slate-800/50">
+                          "{selectedQuote.requirements || 'No se detallaron requerimientos específicos durante la conversación.'}"
+                        </p>
+                      </div>
+
+                      <div className="bg-white dark:bg-[#020617] rounded-[28px] border border-slate-200 dark:border-slate-800 p-6 flex-1 shadow-sm dark:shadow-none">
+                        <div className="flex items-center justify-between mb-6">
+                           <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-xl bg-amber-600/10 text-amber-500 dark:text-amber-400">
+                               <Clock3 size={20} />
+                            </div>
+                            <h4 className="font-bold text-slate-900 dark:text-white text-lg">Historial Reciente</h4>
+                          </div>
+                          <button className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline uppercase tracking-widest">Ver Todo</button>
+                        </div>
+                        
+                        <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                          {selectedQuote.chat_history?.slice(-5).map((msg, idx) => (
+                            <div key={idx} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
+                              <div className={`px-4 py-2.5 rounded-2xl text-sm max-w-[90%] ${
+                                msg.sender === 'user' ? 'bg-blue-600 text-white rounded-tr-none shadow-md' : 'bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-300 rounded-tl-none border border-slate-200 dark:border-slate-700'
+                              }`}>
+                                {msg.message}
+                              </div>
+                              <span className="text-[10px] text-slate-600 mt-1">{formatDate(msg.timestamp).split(',')[1]}</span>
+                            </div>
+                          ))}
+                          {(!selectedQuote.chat_history || selectedQuote.chat_history.length === 0) && (
+                            <p className="text-slate-500 text-center py-8 text-sm italic">Sin historial disponible.</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="bg-white dark:bg-[#020617] rounded-[28px] border border-slate-200 dark:border-slate-800 p-1 bg-gradient-to-b from-slate-100 dark:from-slate-800/50 to-transparent shadow-sm dark:shadow-none">
+                      <div className="p-7 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-xl bg-violet-600/10 text-violet-500 dark:text-violet-400">
+                             <FileText size={20} />
+                          </div>
+                          <h4 className="font-bold text-slate-900 dark:text-white text-lg">Documento Propuesta</h4>
+                        </div>
+                        {pdfPreviewUrl && (
+                          <a href={pdfPreviewUrl} target="_blank" rel="noreferrer" className="p-2 rounded-xl bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-all border border-slate-200 dark:border-transparent">
+                            <ExternalLink size={18} />
+                          </a>
+                        )}
+                      </div>
+                      
+                      <div className="aspect-[4/5] w-full rounded-[24px] overflow-hidden bg-slate-900 border border-slate-800 relative group">
+                        {pdfPreviewUrl ? (
+                          <iframe
+                            title={`PDF ${selectedQuote.client_name}`}
+                            src={pdfPreviewUrl}
+                            className="w-full h-full bg-white transition-opacity duration-500 dark:invert-[0.02] dark:hue-rotate-180"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center bg-slate-100/50 dark:bg-slate-900/50 backdrop-blur-sm">
+                            <div className="w-20 h-20 rounded-3xl bg-slate-200 dark:bg-slate-800 flex items-center justify-center text-slate-400 dark:text-slate-600 mb-4 border border-slate-300 dark:border-slate-700">
+                              <AlertCircle size={40} />
+                            </div>
+                            <h5 className="text-slate-900 dark:text-white font-bold mb-2 text-lg">PDF no disponible</h5>
+                            <p className="text-sm text-slate-500 max-w-[200px]">El documento aún no ha sido generado o el proceso falló.</p>
+                            <button className="mt-6 px-6 py-2 rounded-xl bg-blue-600 text-white text-xs font-bold uppercase tracking-wider hover:bg-blue-500 transition-all">Generar ahora</button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </section>
   )
 }
 
-function MetricCard({ label, value, helper }: { label: string; value: string; helper: string }) {
+function MetricCard({ icon, label, value, helper }: { icon: React.ReactNode; label: string; value: string; helper: string }) {
   return (
-    <div className="rounded-[24px] border border-slate-800 bg-slate-900/40 p-6 backdrop-blur-sm">
-      <p className="mb-2 text-xs uppercase tracking-[0.22em] text-slate-500">{label}</p>
-      <h3 className="text-2xl font-bold text-white">{value}</h3>
-      <p className="mt-2 text-sm text-slate-400">{helper}</p>
+    <div className="group relative overflow-hidden rounded-[32px] border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 p-6 transition-all hover:border-slate-400 dark:hover:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-900/60 shadow-sm dark:shadow-xl">
+      <div className="absolute -right-4 -top-4 h-24 w-24 rounded-full bg-blue-500/5 transition-transform group-hover:scale-150" />
+      <div className="mb-6 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 group-hover:scale-110 transition-transform">
+        {icon}
+      </div>
+      <p className="mb-1 text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">{label}</p>
+      <h3 className="text-2xl lg:text-3xl font-black text-slate-900 dark:text-white tracking-tight">{value}</h3>
+      <p className="mt-2 text-sm font-medium text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+        <ChevronRight size={14} className="text-slate-300 dark:text-slate-600" />
+        {helper}
+      </p>
     </div>
   )
 }
 
-function InfoCard({ title, lines }: { title: string; lines: string[] }) {
+function InfoBox({ icon, title, items }: { icon: React.ReactNode; title: string; items: { label: string; value: string; highlight?: boolean }[] }) {
   return (
-    <div className="rounded-[22px] border border-slate-800 bg-slate-950/70 p-5">
-      <p className="text-xs uppercase tracking-[0.22em] text-slate-500">{title}</p>
-      <div className="mt-3 space-y-2 text-sm text-slate-300">
-        {lines.map((line) => (
-          <p key={`${title}-${line}`}>{line}</p>
+    <div className="rounded-[28px] border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-[#020617] p-6 hover:border-slate-400 dark:hover:border-slate-700 transition-all group shadow-sm dark:shadow-none">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="p-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-100 dark:border-transparent group-hover:bg-slate-100 dark:group-hover:bg-slate-700 transition-colors shadow-sm dark:shadow-none">
+          {icon}
+        </div>
+        <h4 className="font-black text-slate-900 dark:text-white text-xs uppercase tracking-widest">{title}</h4>
+      </div>
+      <div className="space-y-4">
+        {items.map((item, i) => (
+          <div key={i}>
+            <p className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">{item.label}</p>
+            <p className={`text-sm font-medium leading-relaxed ${item.highlight ? 'text-emerald-600 dark:text-emerald-400 font-bold text-lg' : 'text-slate-700 dark:text-slate-200'}`}>
+              {item.value}
+            </p>
+          </div>
         ))}
       </div>
     </div>
